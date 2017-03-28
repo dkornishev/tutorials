@@ -36,11 +36,7 @@ public class SimpleStateMachineConfiguration extends StateMachineConfigurerAdapt
                 .initial("SI")
                 .end("SF")
                 .states(new HashSet<>(Arrays.asList("S1", "S2")))
-                .state("S4", executeAction(), errorAction())
-                .stateEntry("S3", entryAction())
-                .stateDo("S3", executeAction())
-                .stateExit("S3", exitAction());
-
+                .stateEntry("S3", entryAction(), errorAction()).stateDo("S3", executeAction(), errorAction()).stateExit("S3", exitAction(), errorAction()).state("S4", executeAction2(), errorAction());
     }
 
     @Override
@@ -76,6 +72,16 @@ public class SimpleStateMachineConfiguration extends StateMachineConfigurerAdapt
     public Action<String, String> executeAction() {
         return (ctx) -> {
             LOGGER.info("Do " + ctx.getTarget().getId());
+            int approvals = (int) ctx.getExtendedState().getVariables().getOrDefault("approvalCount", 0);
+            approvals++;
+            ctx.getExtendedState().getVariables().put("approvalCount", approvals);
+        };
+    }
+
+    @Bean
+    public Action<String, String> executeAction2() {
+        return (ctx) -> {
+            LOGGER.info("Do2 " + ctx.getTarget().getId());
             int approvals = (int) ctx.getExtendedState().getVariables().getOrDefault("approvalCount", 0);
             approvals++;
             ctx.getExtendedState().getVariables().put("approvalCount", approvals);
